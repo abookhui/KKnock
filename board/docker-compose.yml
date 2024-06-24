@@ -1,0 +1,36 @@
+version: '3.8'  
+services:
+  db:
+    image: mysql:5.7
+    container_name: db
+    environment:
+      MYSQL_HOST : localhost
+      MYSQL_ROOT_PASSWORD: abok1234!
+      MYSQL_DATABASE: kknock
+      TZ: "Asia/Seoul"
+    ports:
+      - "3307:3306" # 호스트의 3307 포트를 컨테이너의 3306 포트로 매핑
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: web
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin
+    links:
+      - db
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+volumes:
+  db_data:
